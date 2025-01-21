@@ -44,21 +44,49 @@ class Quiz(commands.Cog):
 
                 def check(msg):
                     return msg.author == user and isinstance(msg.channel, discord.DMChannel)
-
-                try:
-                    response = await self.bot.wait_for("message", check=check, timeout=30.0)
-                    if response.content.strip().lower() == correct_answer:
-                        score += 1
-                        # await user.send("Correct!")
-                    else:
+                if difficulty == "easy":
+                    timeout = 10
+                    try:
+                        response = await self.bot.wait_for("message", check=check, timeout=timeout)
+                        if response.content.strip().lower() == correct_answer:
+                            score += 1
+                            await user.send("Correct!")
+                        else:
+                            score -= 1
+                            await user.send(f"Wrong! The correct answer was: {correct_answer}")
+                    except TimeoutError:
                         score -= 1
-                        # await user.send(f"Wrong! The correct answer was: {correct_answer}")
-                except TimeoutError:
-                    score -= 1
-                    await user.send("You ran out of time! -1 point.")
+                        await user.send("You ran out of time! -1 point.")
+                elif difficulty == "medium":
+                    timeout = 20
+                    try:
+                        response = await self.bot.wait_for("message", check=check, timeout=timeout)
+                        if response.content.strip().lower() == correct_answer:
+                            score += 1
+                            await user.send("Correct!")
+                        else:
+                            score -= 1
+                            await user.send(f"Wrong! The correct answer was: {correct_answer}")
+                    except TimeoutError:
+                        score -= 1
+                        await user.send("You ran out of time! -1 point.")
+                else:
+                    timeout = 30
+                    try:
+                        response = await self.bot.wait_for("message", check=check, timeout=timeout)
+                        if response.content.strip().lower() == correct_answer:
+                            score += 1
+                            await user.send("Correct!")
+                        else:
+                            score -= 1
+                            await user.send(f"Wrong! The correct answer was: {correct_answer}")
+                    except TimeoutError:
+                        score -= 1
+                        await user.send("You ran out of time! -1 point.")
+                
 
-        # await user.send(f"Quiz finished! Your total score is: {score}")
-        # await ctx.send(f"{user.mention}, your quiz is complete! Check your DM for your score.")
+        await user.send(f"Quiz finished! Your total score is: {score}")
+        await ctx.send(f"{user.mention}, your quiz is complete! Check your DM for your score.")
 
 
 async def setup(bot):
