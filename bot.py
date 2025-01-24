@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 from discord.ext import commands
 from os import getenv
 
-exts =  ["cogs.theme_quiz"]
+exts =  ["cogs.theme_quiz","cogs.spotify"]
 
 class MlscBot(commands.Bot):
   def __init__(self, command_prefix: str, intents: Intents, **kwargs):
