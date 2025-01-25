@@ -3,8 +3,13 @@ from discord.ext import commands
 from discord import app_commands
 import asyncio
 from pymongo import MongoClient
-
-
+import praw 
+reddit = praw.Reddit(
+    client_id=os.getenv("CLIENT_ID")
+    client_secret=os.getenv("CLIENT_SECRET")
+    user_agent=os.getenv("USER_AGENT")
+    
+)
 class MemeCollector(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -16,6 +21,14 @@ class MemeCollector(commands.Cog):
         mongo_uri = getenv("MONGO_URI")
         client = MongoClient(mongo_uri)
         return client["MemeBotDatabase"]
+    @bot.slash_command(name="meme", description="gets a random meme from reddit")
+    async def(ctx):
+        subreddit = reddit.subreddit("memes") 
+        posts = [post for post in subreddit.hot(limit=50) if not post.stickied]
+        random_post = random.choice(posts)
+        meme_name = random_post.title
+        meme_url = random_post.url
+    
 
     @app_commands.command(name="creatememe", description="Create a new meme by uploading an image.")
     async def create_meme(self, interaction: discord.Interaction, meme_name: str):
@@ -54,7 +67,7 @@ class MemeCollector(commands.Cog):
 
         if meme:
             await message.delete()  # Delete +- original message
-            embed = discord.Embed(description=f"{message.author.name} shared a meme!")
+            embed = discord.Embed(description=f"{message.author.name} shared a meme!",title=meme_name)
             embed.set_image(url=meme["url"])
             embed.set_footer(text=message.author.name, icon_url=message.author.avatar.url)
 
