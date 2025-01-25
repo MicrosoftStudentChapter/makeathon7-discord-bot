@@ -98,9 +98,14 @@ class MemeCollector(commands.Cog):
         if not meme:
             return
 
-        message = await channel.send(
-            f"Voting for meme **{meme_name}** has started! React with 👍 to upvote or 👎 to downvote."
+        embed = discord.Embed(
+            title=f"Voting for meme **{meme_name}** has started!",
+            description="React with 👍 to upvote or 👎 to downvote.",
+            color=discord.Color.blue(),
         )
+        embed.set_image(url=meme["url"])
+
+        message = await channel.send(embed=embed)
         await message.add_reaction("👍")
         await message.add_reaction("👎")
 
@@ -117,13 +122,15 @@ class MemeCollector(commands.Cog):
                 await channel.send(f"Meme **{meme_name}** has been verified! It received enough upvotes.")
             else:
                 await channel.send(f"Meme **{meme_name}** did not receive enough upvotes to be verified.")
+                self.db.memes.delete_one({"name": meme_name})
+                await channel.send(f"Meme **{meme_name}** has been deleted from the server.")
 
     @commands.Cog.listener()
     async def on_reaction_add(self, reaction: discord.Reaction, user: discord.User):
         if user.bot:
             return
 
-        meme_name = reaction.message.content.split("**")[1]
+        meme_name = reaction.message.embeds[0].title.split("**")[1]
 
         meme = self.db.memes.find_one({"name": meme_name})
         if not meme:
@@ -145,7 +152,7 @@ class MemeCollector(commands.Cog):
         if user.bot:
             return
 
-        meme_name = reaction.message.content.split("**")[1]
+        meme_name = reaction.message.embeds[0].title.split("**")[1]
 
         meme = self.db.memes.find_one({"name": meme_name})
         if not meme:
@@ -166,12 +173,10 @@ class MemeCollector(commands.Cog):
     async def on_message(self, message):
         if message.author.bot:
             return
-
         meme_name = message.content.strip().lower()
         meme = self.db.memes.find_one({"name": meme_name})
-
         if meme:
-            await message.delete()  # Delete the original message
+            # await message.delete()  
             embed = discord.Embed(description=f"{message.author.name} shared a meme!", title=meme_name)
             embed.set_image(url=meme["url"])
             embed.set_footer(text=message.author.name, icon_url=message.author.avatar.url)
