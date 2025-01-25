@@ -4,12 +4,7 @@ from dotenv import load_dotenv
 from os import getenv
 import asyncio
 import praw 
-reddit = praw.Reddit(
-    client_id=os.getenv("CLIENT_ID")
-    client_secret=os.getenv("CLIENT_SECRET")
-    user_agent=os.getenv("USER_AGENT")
-    
-)
+
 
 # List of extensions (cogs) to load
 exts = [
