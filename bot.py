@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 from discord.ext import commands
 from os import getenv
 
-exts =  []
+exts =  ["cogs.Music"]
 
 class MlscBot(commands.Bot):
   def __init__(self, command_prefix: str, intents: Intents, **kwargs):
